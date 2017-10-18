@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+# Array Splitting
+# ---------------
+#
+# IFS must be set to a string containing space or unset in order for
+# the array slicing to work regardless of the current IFS setting on
+# bash 3.  This is detailed further at
+# https://github.com/fidian/gg-core/pull/7
+
+. bpm
+bpm::include is
+
+# Send an array as a variable up to caller of a function. It is best used
+# with some odd syntax as shown in the example, which preserves empty arrays.
+#
+# $1   - Variable name
+# $2-@ - Array elements
+#
+# Examples
+#
+#   callFunc () {
+#       local myArray=(one two three)
+#       local "${1-}" && assign::array "$1" ${myArray[@]+"${myArray[@]}"}
+#   }
+#   callFunc dest
+#   echo "${dest[@]}" # writes "one two three"
+#
+# Returns nothing.
+assign::array() {
+    unset -v "$1"
+
+    # Must set IFS - see the "Array Splitting" discussion.
+    eval "$(printf "IFS= %s=(\"\${@:2}\") IFS=%q" "$1" "$IFS")"
+}
+
+
+# Assigns a value by reference.
+#
+# $1 - Destination variable name.
+# $2 - Source variable name.
+#
+# Copies an array or scalar to the destination. This can be much simpler than
+# assigning arrays. See the example for further information.
+#
+# Examples
+#
+#   # Copy a value
+#   a="a string"
+#   assign::byRef b a
+#   echo "$b"  # "a string"
+#
+#   # Copy an array with an unknown number of elements (even zero)
+#   # Replace "..." with zero or more elements.
+#   theArray=( ... )
+#   assign::byRef theArrayCopy theArray
+#   set | grep ^theArray
+#   # This shows the array was copied
+#
+#   # Copies an unset value as well.
+#   unset unsetValue
+#   unsetValueCopy=something
+#   assign::byRef unsetValueCopy unsetValue
+#   set | grep ^unsetValue
+#   # Neither shows up.
+#
+# Returns nothing.
+assign::byRef() {
+    unset -v "$1"
+
+    if is::array "$2"; then
+        # Must set IFS - see the "Array Splitting" discussion.
+        eval "assign::array \"$1\" \${$2[@]+\"\${$2[@]}\"}"
+    elif [[ -n "${!2+_}" ]]; then
+        # If there is a value, copy it.
+        printf -v "$1" '%s' "${!2}"
+    fi
+}
+
+
+# Send a variable up to the parent of the caller of this function.
+#
+# $1 - Variable name.
+# $2 - Value to assign.
+#
+# Examples
+#
+#   callFunc() {
+#       local dest
+#       dest="Just an example to prove the local variable is overwritten"
+#       local "${1-}" && assign::value "$1" "the value"
+#   }
+#
+#   dest="value from target scope, ignored"
+#   callFunc dest
+#   echo "$dest"  # writes "the value"
+#
+# Returns nothing.
+assign::value() {
+    unset -v "$1"
+    printf -v "$1" '%s' "${2-}"
+}

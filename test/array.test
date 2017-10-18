@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+. bpm
+bpm::include unittest
+unittest::run
+
+unittest::setup() {
+    . ../libassign
+}
+
+assignArrayOverString() {
+    local result
+
+    result="this is wrong"
+    local "${1-}" && assign::array "$1" works
+}
+
+unittest::case::assign-over-string() {
+    local result
+
+    result="was not overwritten"
+    assignArrayOverString result || return 1
+    [[ "${#result[@]}" == 1 ]] && [[ "${result[0]}" == works ]]
+}
+
+assignArrayOverArray() {
+    local result
+
+    result=("this is wrong")
+    local "${1-}" && assign::array "$1" "this also" works
+}
+
+unittest::case::assign-over-string() {
+    local result
+
+    result=(was not overwritten)
+    assignArrayOverArray result || return 1
+    [[ "${#result[@]}" == 2 ]] || return 1
+    [[ "${result[0]}" == "this also" ]] || return 1
+    [[ "${result[1]}" == works ]]
+}
+
+assignMissingValue() {
+    local "${1-}" && assign::array "$1"
+}
+
+unittest::case::missing-value() {
+    local result
+
+    result=(should not have this content)
+    assignMissingValue result || return 1
+
+    # Not comparing numerically to make sure we aren't converting an
+    # empty string to a zero.
+    [[ "${#result[@]}" == "0" ]]
+}
+
+unittest::case::bad-identifier() {
+    ! assign::array "spaces are not allowed" &> /dev/null
+}
