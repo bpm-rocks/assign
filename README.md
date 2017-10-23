@@ -7,7 +7,7 @@ Return strings and arrays from Bash functions.
 Installation
 ============
 
-Add to your `bpm.ini` file, the following dependency.
+Add to your `bpm.ini` file the following dependency.
 
     [dependencies]
     assign=1
