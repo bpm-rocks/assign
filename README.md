@@ -79,6 +79,32 @@ Examples
 Returns nothing.
 
 
+`assign::pipe()`
+----------------
+
+Assign stdin to a value, preserving all newlines and everything that is piped in.
+
+* $1 - Variable name.
+
+Examples:
+
+    # This assigns *all* output to the variable
+    assign::pipe output < <(ls)
+
+    # This does not; it trims the trailing newline.
+    output=$(ls)
+
+    # Do not use it this way because the later functions are spawned in
+    # subshells, thus can not really change the value how you want.
+    echo "DOES NOT WORK THIS WAY" | assign::pipe badExample
+
+    # Works with heredocs!
+    assign::pipe helpMessage <<'EOF'
+    This is my help message.
+    It can have "quotes", 'apostrophes' and `backticks`.
+    EOF
+
+
 `assign::value()`
 -----------------
 
