@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+. bpm
+bpm::include unittest
+unittest::run
+
+unittest::setup() {
+    . ../libassign
+}
+
+unittest::case::simple-output() {
+    local result
+
+    result="this is wrong"
+    assign::pipe result < <(echo -n "correct")
+    [[ "$result" == "correct" ]]
+}
+
+unittest::case::preserves-newline() {
+    local result
+
+    result="this is wrong"
+    assign::pipe result < <(echo "correct")
+    [[ "$result" == "correct"$'\n' ]]
+}
+
+unittest::case::evil-heredoc() {
+    local result
+
+    result="this is wrong"
+    assign::pipe result <<'EOF'
+Line1
+Tricky: $(`'"
+EOF
+    [[ "$result" == "Line1"$'\n'"Tricky: \$(\`'\""$'\n' ]]
+}

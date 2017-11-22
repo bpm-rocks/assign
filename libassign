@@ -78,6 +78,44 @@ assign::byRef() {
 }
 
 
+# Assign stdin to a value, preserving all newlines and everything that is
+# piped in.
+#
+# $1 - Variable name.
+#
+# Examples:
+#
+#   # This assigns *all* output to the variable
+#   assign::pipe output < <(ls)
+#
+#   # This does not; it trims the trailing newline.
+#   output=$(ls)
+#
+#   # Do not use it this way because the later functions are spawned in
+#   # subshells, thus can not really change the value how you want.
+#   echo "DOES NOT WORK THIS WAY" | assign::pipe badExample
+#
+#   # Works with heredocs!
+#   assign::pipe helpMessage <<'EOF'
+#   This is my help message.
+#   It can have "quotes", 'apostrophes' and `backticks`.
+#   EOF
+assign::pipe() {
+    assign::value "$1" "$(
+        cat
+
+        # Tricky thing part 1: append a period to the end so the subshell
+        # preserves any newlines at the end that cat found.
+        echo -n "."
+    )"
+
+    # Tricky thing part 2: remove that newline. This is all done without
+    # using a temporary variable so we don't need to worry about conflicting
+    # with parent scope variables.
+    assign::value "$1" "${!1%.}"
+}
+
+
 # Send a variable up to the parent of the caller of this function.
 #
 # $1 - Variable name.
