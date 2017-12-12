@@ -28,10 +28,13 @@ bpm::include is
 #
 # Returns nothing.
 assign::array() {
-    unset -v "$1"
+    local IFS
 
     # Must set IFS - see the "Array Splitting" discussion.
-    eval "$(printf "IFS= %s=(\"\${@:2}\") IFS=%q" "$1" "$IFS")"
+    IFS=
+    unset -v "$1"
+
+    eval "$(printf "%s=(\"\${@:2}\")" "$1")"
 }
 
 
@@ -69,7 +72,7 @@ assign::byRef() {
     unset -v "$1"
 
     if is::array "$2"; then
-        # Must set IFS - see the "Array Splitting" discussion.
+        # This call must set IFS - see the "Array Splitting" discussion.
         eval "assign::array \"$1\" \${$2[@]+\"\${$2[@]}\"}"
     elif [[ -n "${!2+_}" ]]; then
         # If there is a value, copy it.
