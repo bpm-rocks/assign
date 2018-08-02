@@ -57,3 +57,19 @@ unittest::case::missing-value() {
 unittest::case::bad-identifier() {
     ! assign::array "spaces are not allowed" &> /dev/null
 }
+
+checkForLeak() {
+    local dest
+
+    assignArrayOverString dest
+}
+
+unittest::case::does-not-leak() {
+    local dest
+
+    dest=(old value)
+    checkForLeak
+    [[ "${#dest[@]}" == 2 ]] || return 1
+    [[ "${dest[0]}" == "old" ]] || return 1
+    [[ "${dest[1]}" == "value" ]] || return 1
+}

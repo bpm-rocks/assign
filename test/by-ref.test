@@ -76,3 +76,31 @@ unittest::case::invalid-variable() {
     # Testing that the variable is not set.
     [[ -z "${dest+_}" ]]
 }
+
+checkForStringLeak() {
+    local dest
+
+    returnString dest
+}
+
+unittest::case::string-does-not-leak() {
+    local dest
+
+    dest="old value"
+    checkForStringLeak
+    [[ "$dest" == "old value" ]]
+}
+
+checkForArrayLeak() {
+    local dest
+
+    returnArray dest
+}
+
+unittest::case::array-does-not-leak() {
+    local dest
+
+    dest="old value"
+    checkForArrayLeak
+    [[ "$dest" == "old value" ]]
+}

@@ -49,3 +49,17 @@ unittest::case::extra-values() {
 unittest::case::bad-identifier() {
     ! assign::value "spaces are not allowed" &> /dev/null
 }
+
+checkForLeak() {
+    local dest
+
+    assignString dest
+}
+
+unittest::case::does-not-leak() {
+    local dest
+
+    dest="old value"
+    checkForLeak
+    [[ "$dest" == "old value" ]]
+}
