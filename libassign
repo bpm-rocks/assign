@@ -72,9 +72,9 @@ assign::byRef() {
     unset -v "$1"
 
     if is::array "$2"; then
-        # This call must set IFS - see the "Array Splitting" discussion.
-        # eval "assign::array \"$1\" \${$2[@]+\"\${$2[@]}\"}"
-        eval "$(printf "%s=(\"\${%s[@]}\")" "$1" "$2")"
+        # This looks awful. It generates a string like this
+        # [[ ${#SRC[@]} -gt 0 ]] && DST=("${SRC[@]}") || DST=()
+        eval "$(printf "[[ \${#%s[@]} -gt 0 ]] && %s=(\"\${%s[@]}\") || %s=()" "$2" "$1" "$2" "$1")"
     elif [[ -n "${!2+_}" ]]; then
         # If there is a value, copy it.
         printf -v "$1" '%s' "${!2}"
