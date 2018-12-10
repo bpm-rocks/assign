@@ -1,5 +1,5 @@
 BPM Library: Assign
-==================
+===================
 
 Return strings and arrays from Bash functions. This is based on the excellent [`upvar`] function.
 
