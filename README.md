@@ -1,7 +1,7 @@
 BPM Library: Assign
 ==================
 
-Return strings and arrays from Bash functions.
+Return strings and arrays from Bash functions. This is based on the excellent [`upvar`] function.
 
 
 Installation
@@ -134,3 +134,6 @@ License
 =======
 
 This project is placed under an [MIT License](LICENSE.md).
+
+
+[`upvar`]: http://fvue.nl/wiki/Bash:_Passing_variables_by_reference
